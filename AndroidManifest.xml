@@ -22,6 +22,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name="com.iscoderweather.app.activity.WeatherActivity"></activity>
+        <service android:name="com.iscoderweather.app.service.AutoUpdateService"></service>
+        <receiver android:name="com.iscoderweather.app.reciver.AutoUpdateReceiver"></receiver>
     </application>
 
 </manifest>

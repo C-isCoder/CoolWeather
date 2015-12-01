@@ -6,8 +6,6 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-import android.util.Log;
-
 public class HttpUtil {
 		public static final String APIKEY = "71f90380832b91e07e8f97272ceecea6";
 		public static void sendHttpRequest (final String address, final HttpCallbackListener listener) {
@@ -29,7 +27,7 @@ public class HttpUtil {
 						while ((line = reader.readLine()) != null) {
 							response.append(line);
 						}
-						Log.d("cxd", response.toString());
+						//Log.d("cxd", "服务器返回数据： " + response.toString());
 						if (listener != null) {
 							//回调onFinish()方法
 							listener.onFinish(response.toString());

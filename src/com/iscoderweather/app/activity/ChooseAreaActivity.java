@@ -5,9 +5,11 @@ import java.util.List;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.widget.AdapterView;
@@ -17,6 +19,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.iscoderweather.app.R;
 import com.iscoderweather.app.model.City;
 import com.iscoderweather.app.model.County;
 import com.iscoderweather.app.model.IsCoderWeatherDB;
@@ -37,43 +40,50 @@ public class ChooseAreaActivity extends Activity {
 	private ArrayAdapter<String> adapter;
 	private IsCoderWeatherDB iscoderWeatherDB;
 	private List<String> dataList = new ArrayList<String>();
-	
 	/**
 	 * 省列表
 	 */
 	private List<Province> provinceList;
-	
 	/**
 	 *  市列表
 	 */
 	private List<City> cityList;
-	
 	/**
 	 * 县列表
 	 */
 	private List<County> countyList;
-	
 	/**
 	 * 选中的省份
 	 */
 	private Province selectedProvince;
-	
 	/**
 	 * 选中的城市
 	 */
 	private City selectedCity;
-	
 	/**
 	 * 当前选中的级别
 	 */
 	private int currentLevel;
+	/**
+	 * 是否从WeatherActivity中跳转过来。
+	 */
+	private boolean isFromWeatherActivity;
 	
 	protected void onCreate (Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		isFromWeatherActivity = getIntent().getBooleanExtra("from_weather_activity", false);
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+		//已经选择了城市且不是从WeatherActivit跳转过来，才回直接跳转到WeatherActivity
+		if (prefs.getBoolean("city_selected", false) && !isFromWeatherActivity) {
+			Intent intent = new Intent(this, WeatherActivity.class);
+			startActivity(intent);
+			finish();
+			return;
+		}
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
-		setContentView(com.iscoderweather.app.R.layout.choose_area);
-		listView = (ListView)findViewById(com.iscoderweather.app.R.id.list_view);
-		titleText = (TextView)findViewById(com.iscoderweather.app.R.id.title_text);
+		setContentView(R.layout.choose_area);
+		listView = (ListView)findViewById(R.id.list_view);
+		titleText = (TextView)findViewById(R.id.title_text);
 		adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, dataList);
 		listView.setAdapter(adapter);
 		iscoderWeatherDB = IsCoderWeatherDB.getInstance(this);
@@ -86,6 +96,12 @@ public class ChooseAreaActivity extends Activity {
 				} else if (currentLevel == LEVEL＿CITY) {
 					selectedCity = cityList.get(index);
 					queryCountites();
+				} else if (currentLevel == LEVEL_COUNTY) {
+					String countyCode = countyList.get(index).getCountyCode();
+					Intent intent = new Intent(ChooseAreaActivity.this, WeatherActivity.class);
+					intent.putExtra("county_code", countyCode);
+					startActivity(intent);
+					finish();
 				}
 			}
 			
@@ -118,7 +134,7 @@ public class ChooseAreaActivity extends Activity {
 	protected void queryCities() {
 		//Log.d("cxd", "选中的省份：" + selectedProvince.getId());
 		cityList = iscoderWeatherDB.loadCities(selectedProvince.getId());
-		Log.d("cxd-loadCities()", "cityList大小： "+cityList.size());
+		//Log.d("cxd-loadCities()", "cityList大小： "+cityList.size());
 		if (cityList.size() > 0) {
 			dataList.clear();
 			for (City city : cityList) {
@@ -173,7 +189,7 @@ public class ChooseAreaActivity extends Activity {
 					result = Utility.handlerProvincesResponse(iscoderWeatherDB, response);
 				} else if ("city".equals(type)) {
 					result = Utility.handleCitiesRespopnse(iscoderWeatherDB, response, selectedProvince.getId());
-					Log.d("cxd-saveCity", "结果： " + result);
+					//Log.d("cxd-saveCity", "结果： " + result);
 				} else if ("county".equals(type)) {
 					result = Utility.handleCountiesResponse(iscoderWeatherDB, response, selectedCity.getId());
 				}
@@ -242,6 +258,10 @@ public class ChooseAreaActivity extends Activity {
 		} else if (currentLevel == LEVEL＿CITY) {
 			queryProvinces();
 		} else {
+			if (isFromWeatherActivity) {
+				Intent intent = new Intent(this, WeatherActivity.class);
+				startActivity(intent);
+			}
 			finish();
 		}
 	}
