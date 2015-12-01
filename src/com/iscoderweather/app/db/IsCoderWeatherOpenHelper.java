@@ -1,10 +1,10 @@
 package com.iscoderweather.app.db;
 
 import android.content.Context;
-import android.database.DatabaseErrorHandler;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 public class IsCoderWeatherOpenHelper extends SQLiteOpenHelper {
 	
@@ -29,9 +29,9 @@ public class IsCoderWeatherOpenHelper extends SQLiteOpenHelper {
 	 * County表建表语句
 	 */
 	public static final String CREATE_COUNTY = "create table county("
-			+ "id integer primary key autoincrement"
-			+ "county_name text"
-			+ "county_code text"
+			+ "id integer primary key autoincrement,"
+			+ "county_name text,"
+			+ "county_code text,"
 			+ "city_id integer)";
 	
 	public IsCoderWeatherOpenHelper(Context context, String name,
@@ -41,9 +41,13 @@ public class IsCoderWeatherOpenHelper extends SQLiteOpenHelper {
 
 	@Override
 	public void onCreate(SQLiteDatabase db) {
-		db.execSQL(CREATE_CITY);//创建City表
-		db.execSQL(CREATE_COUNTY);//创建County表
+		Log.d("cxd","开始创建表");
 		db.execSQL(CREATE_PROVINCE);//创建Province表
+		Log.d("cxd","Province表创建完成");
+		db.execSQL(CREATE_CITY);//创建City表
+		Log.d("cxd","City表创建完成");
+		db.execSQL(CREATE_COUNTY);//创建County表
+		Log.d("cxd","County表创建完成");
 	}
 
 	@Override
